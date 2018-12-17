@@ -14,11 +14,26 @@ if __name__ == "__main__":
     clave_file = input("Fichero de la clave: ")
     input_file = input("Fichero a descifrar: ")
     output_file = input("Fichero de salida: ")
-    clave = str()
-    input_text = str()
-    with open(clave_file) as f:
-        clave = f.read()
+    clave_bytes = open(clave_file,"rb").read()
     input_bytes = open(input_file,"rb").read()
+    
+    clave = bytearray(16)
+    clave[0] = (clave_bytes[0] & 0b11110000) >> 4
+    clave[1] = clave_bytes[0] & 0b00001111
+    clave[2] = (clave_bytes[1] & 0b11110000) >> 4
+    clave[3] = clave_bytes[1] & 0b00001111
+    clave[4] = (clave_bytes[2] & 0b11110000) >> 4
+    clave[5] = clave_bytes[2] & 0b00001111
+    clave[6] = (clave_bytes[3] & 0b11110000) >> 4
+    clave[7] = clave_bytes[3] & 0b00001111
+    clave[8] = (clave_bytes[4] & 0b11110000) >> 4
+    clave[9] = clave_bytes[4] & 0b00001111
+    clave[10] = (clave_bytes[5] & 0b11110000) >> 4
+    clave[11] = clave_bytes[5] & 0b00001111
+    clave[12] = (clave_bytes[6] & 0b11110000) >> 4
+    clave[13] = clave_bytes[6] & 0b00001111
+    clave[14] = (clave_bytes[7] & 0b11110000) >> 4
+    clave[15] = clave_bytes[7] & 0b00001111
     # Cada matriz es de 8 bytes
     # 16 bloques
     # Bloques de 4 BITS

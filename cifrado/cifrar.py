@@ -68,7 +68,6 @@ if __name__ == "__main__":
                 letra = (matrix[j] << 4) + matrix[j+1]
                 write[j // 2] = letra
                 j += 2
-                #breakpoint()
             f.write(write)
             i += 8
     print("CIFRADO EXITOSO")

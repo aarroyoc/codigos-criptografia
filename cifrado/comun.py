@@ -1,4 +1,7 @@
 # SEGUIR EL ORDEN DE BITS DEL AES
+
+from numpy.linalg import inv
+
 def poly_mult(pol1,pol2):
     res = [0]*(len(pol1)+len(pol2)-1)
     for o1,i1 in enumerate(pol1):
@@ -18,47 +21,123 @@ def sustitucion_afin(clave,matrix,ronda=1):
     '''
     Sustitucion afin. Seguir orden de bits de AES
     '''
+    i = 0
+    if ronda == 2:
+        i = 5
     matrix_mult = bytearray(16)
-    matrix_mult[0] = clave[0] & 0b0001
-    matrix_mult[1] = clave[0] & 0b0010
-    matrix_mult[2] = clave[0] & 0b0100
-    matrix_mult[3] = clave[0] & 0b1000
-    matrix_mult[4] = clave[1] & 0b0001
-    matrix_mult[5] = clave[1] & 0b0010
-    matrix_mult[6] = clave[1] & 0b0100
-    matrix_mult[7] = clave[1] & 0b1000
-    matrix_mult[8] = clave[2] & 0b0001
-    matrix_mult[9] = clave[2] & 0b0010
-    matrix_mult[10] = clave[2] & 0b0100
-    matrix_mult[11] = clave[2] & 0b1000
-    matrix_mult[12] = clave[3] & 0b0001
-    matrix_mult[13] = clave[3] & 0b0010
-    matrix_mult[14] = clave[3] & 0b0100
-    matrix_mult[15] = clave[3] & 0b1000
+    matrix_mult[0] = clave[i] & 0b0001
+    matrix_mult[1] = (clave[i] & 0b0010) >> 1
+    matrix_mult[2] = (clave[i] & 0b0100) >> 2
+    matrix_mult[3] = (clave[i] & 0b1000) >> 3
+    matrix_mult[4] = clave[i+1] & 0b0001
+    matrix_mult[5] = (clave[i+1] & 0b0010) >> 1
+    matrix_mult[6] = (clave[i+1] & 0b0100) >> 2
+    matrix_mult[7] = (clave[i+1] & 0b1000) >> 3
+    matrix_mult[8] = clave[i+2] & 0b0001
+    matrix_mult[9] = (clave[i+2] & 0b0010) >> 1
+    matrix_mult[10] = (clave[i+2] & 0b0100) >> 2
+    matrix_mult[11] = (clave[i+2] & 0b1000) >> 3
+    matrix_mult[12] = clave[i+3] & 0b0001
+    matrix_mult[13] = (clave[i+3] & 0b0010) >> 1
+    matrix_mult[14] = (clave[i+3] & 0b0100) >> 2
+    matrix_mult[15] = (clave[i+3] & 0b1000) >> 3
 
     suma = bytearray(4)
-    suma[0] = clave[4] & 0b0001
-    suma[1] = clave[4] & 0b0010
-    suma[2] = clave[4] & 0b0100
-    suma[3] = clave[4] & 0b1000
+    suma[0] = clave[i+4] & 0b0001
+    suma[1] = (clave[i+4] & 0b0010) >> 1
+    suma[2] = (clave[i+4] & 0b0100) >> 2
+    suma[3] = (clave[i+4] & 0b1000) >> 3
 
     for block in range(0,len(matrix)):
         b = bytearray(4)
         b[0] = matrix[block] & 0b0001
-        b[1] = matrix[block] & 0b0010
-        b[2] = matrix[block] & 0b0100
-        b[3] = matrix[block] & 0b1000
+        b[1] = (matrix[block] & 0b0010) >> 1
+        b[2] = (matrix[block] & 0b0100) >> 2
+        b[3] = (matrix[block] & 0b1000) >> 3
 
         # (MATRIX_MULT * B) 
-        b[0] = matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]
-        b[1] = matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]
-        b[2] = matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]
-        b[3] = matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]
+        #b[0] = matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]
+        #b[1] = matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]
+        #b[2] = matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]
+        #b[3] = matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]
 
         # + SUMA
         b = suma_xor(b,suma) # b es bytearray y debería ser int
-        b = b[0]*8 + b[1]*4 + b[2]*2 + b[3]*1
+        b = b[3]*8 + b[2]*4 + b[1]*2 + b[0]*1
         matrix[block] = b
+
+
+def sustitucion_afin_inv(clave,matrix,ronda=1):
+    i = 0
+    if ronda == 2:
+        i = 5
+    matrix_mult = bytearray(16)
+    matrix_mult[0] = clave[i] & 0b0001
+    matrix_mult[1] = (clave[i] & 0b0010) >> 1
+    matrix_mult[2] = (clave[i] & 0b0100) >> 2
+    matrix_mult[3] = (clave[i] & 0b1000) >> 3
+    matrix_mult[4] = clave[i+1] & 0b0001
+    matrix_mult[5] = (clave[i+1] & 0b0010) >> 1
+    matrix_mult[6] = (clave[i+1] & 0b0100) >> 2
+    matrix_mult[7] = (clave[i+1] & 0b1000) >> 3
+    matrix_mult[8] = clave[i+2] & 0b0001
+    matrix_mult[9] = (clave[i+2] & 0b0010) >> 1
+    matrix_mult[10] = (clave[i+2] & 0b0100) >> 2
+    matrix_mult[11] = (clave[i+2] & 0b1000) >> 3
+    matrix_mult[12] = clave[i+3] & 0b0001
+    matrix_mult[13] = (clave[i+3] & 0b0010) >> 1
+    matrix_mult[14] = (clave[i+3] & 0b0100) >> 2
+    matrix_mult[15] = (clave[i+3] & 0b1000) >> 3
+
+    suma = bytearray(4)
+    suma[0] = clave[i+4] & 0b0001
+    suma[1] = (clave[i+4] & 0b0010) >> 1
+    suma[2] = (clave[i+4] & 0b0100) >> 2
+    suma[3] = (clave[i+4] & 0b1000) >> 3
+
+    for block in range(0,len(matrix)):
+        b = bytearray(4)
+        b[0] = matrix[block] & 0b0001
+        b[1] = (matrix[block] & 0b0010) >> 1
+        b[2] = (matrix[block] & 0b0100) >> 2
+        b[3] = (matrix[block] & 0b1000) >> 3
+
+        # + SUMA
+        b = suma_xor(b,suma) # b es bytearray y debería ser int
+
+        # (INV(MATRIX_MULT) * B)
+        m = getMatrixInverse([
+            [matrix_mult[0],matrix_mult[4],matrix_mult[8],matrix_mult[12]],
+            [matrix_mult[1],matrix_mult[5],matrix_mult[9],matrix_mult[13]],
+            [matrix_mult[2],matrix_mult[6],matrix_mult[10],matrix_mult[14]],
+            [matrix_mult[3],matrix_mult[7],matrix_mult[11],matrix_mult[15]]
+        ])
+        matrix_mult = [
+            int(m[0][0]),
+            int(m[0][1]),
+            int(m[0][2]),
+            int(m[0][3]),
+            int(m[1][0]),
+            int(m[1][1]),
+            int(m[1][2]),
+            int(m[1][3]),
+            int(m[2][0]),
+            int(m[2][1]),
+            int(m[2][2]),
+            int(m[2][3]),
+            int(m[3][0]),
+            int(m[3][1]),
+            int(m[3][2]),
+            int(m[3][3])
+        ]
+        #b[0] = (matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]) % 2
+        #b[1] = (matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]) % 2
+        #b[2] = (matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]) % 2
+        #b[3] = (matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]) % 2
+
+        b = b[3]*8 + b[2]*4 + b[1]*2 + b[0]*1
+        matrix[block] = b
+
 
 
 
@@ -166,3 +245,42 @@ def suma_xor(clave,matrix):
     '''
     return bytearray([pair[0] ^ pair[1] for pair in zip(clave,matrix)])
 
+'''
+Operaciones con matrices
+'''
+def transposeMatrix(m):
+    return list(map(list,zip(*m)))
+
+def getMatrixMinor(m,i,j):
+    return [row[:j] + row[j+1:] for row in (m[:i]+m[i+1:])]
+
+def getMatrixDeternminant(m):
+    #base case for 2x2 matrix
+    if len(m) == 2:
+        return m[0][0]*m[1][1]-m[0][1]*m[1][0]
+
+    determinant = 0
+    for c in range(len(m)):
+        determinant += ((-1)**c)*m[0][c]*getMatrixDeternminant(getMatrixMinor(m,0,c))
+    return determinant % 2
+
+def getMatrixInverse(m):
+    determinant = getMatrixDeternminant(m)
+    #special case for 2x2 matrix:
+    if len(m) == 2:
+        return [[m[1][1]/determinant, -1*m[0][1]/determinant],
+                [-1*m[1][0]/determinant, m[0][0]/determinant]]
+
+    #find matrix of cofactors
+    cofactors = []
+    for r in range(len(m)):
+        cofactorRow = []
+        for c in range(len(m)):
+            minor = getMatrixMinor(m,r,c)
+            cofactorRow.append(((-1)**(r+c)) * getMatrixDeternminant(minor))
+        cofactors.append(cofactorRow)
+    cofactors = transposeMatrix(cofactors)
+    for r in range(len(cofactors)):
+        for c in range(len(cofactors)):
+            cofactors[r][c] = cofactors[r][c]/determinant
+    return cofactors
