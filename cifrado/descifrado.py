@@ -1,11 +1,12 @@
 from comun import *
 
 def descifrar_bloque(clave,matrix):
-    #matrix = sustitucion_afin(clave,matrix,1)
+    clave = bytearray([8,4,2,1,8,8,4,2,1,8,0,0,0,0,0,0])
+    sustitucion_afin_inv(clave,matrix,2)
     matrix = permutacion_filas_inv(matrix)
     #matrix = permutacion_columnas(clave,matrix)
     matrix = suma_xor(clave,matrix)
-    #matrix = sustitucion_afin(clave,matrix,2)
+    sustitucion_afin_inv(clave,matrix,1)
     matrix = permutacion_filas_inv(matrix)
     #matrix = permutacion_columnas(clave,matrix)
     return matrix
@@ -16,7 +17,7 @@ if __name__ == "__main__":
     output_file = input("Fichero de salida: ")
     clave_bytes = open(clave_file,"rb").read()
     input_bytes = open(input_file,"rb").read()
-    
+
     clave = bytearray(16)
     clave[0] = (clave_bytes[0] & 0b11110000) >> 4
     clave[1] = clave_bytes[0] & 0b00001111

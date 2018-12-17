@@ -1,11 +1,12 @@
 from comun import *
 
 def cifrar_bloque(clave,matrix):
-    #matrix = sustitucion_afin(clave,matrix,1)
+    clave = bytearray([8,4,2,1,8,8,4,2,1,8,0,0,0,0,0,0])
+    sustitucion_afin(clave,matrix,1)
     matrix = permutacion_filas(matrix)
     #matrix = permutacion_columnas(clave,matrix)
     matrix = suma_xor(clave,matrix)
-    #matrix = sustitucion_afin(clave,matrix,2)
+    sustitucion_afin(clave,matrix,2)
     matrix = permutacion_filas(matrix)
     #matrix = permutacion_columnas(clave,matrix)
     return matrix

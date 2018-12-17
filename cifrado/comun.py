@@ -55,15 +55,16 @@ def sustitucion_afin(clave,matrix,ronda=1):
         b[2] = (matrix[block] & 0b0100) >> 2
         b[3] = (matrix[block] & 0b1000) >> 3
 
-        # (MATRIX_MULT * B) 
-        #b[0] = matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]
-        #b[1] = matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]
-        #b[2] = matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]
-        #b[3] = matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]
+        # (MATRIX_MULT * B)
+        p = bytearray(4) 
+        p[0] = matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]
+        p[1] = matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]
+        p[2] = matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]
+        p[3] = matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]
 
         # + SUMA
-        b = suma_xor(b,suma) # b es bytearray y debería ser int
-        b = b[3]*8 + b[2]*4 + b[1]*2 + b[0]*1
+        p = suma_xor(p,suma) # b es bytearray y debería ser int
+        b = p[3]*8 + p[2]*4 + p[1]*2 + p[0]*1
         matrix[block] = b
 
 
@@ -106,37 +107,39 @@ def sustitucion_afin_inv(clave,matrix,ronda=1):
         b = suma_xor(b,suma) # b es bytearray y debería ser int
 
         # (INV(MATRIX_MULT) * B)
-        m = getMatrixInverse([
+        mm = [
             [matrix_mult[0],matrix_mult[4],matrix_mult[8],matrix_mult[12]],
             [matrix_mult[1],matrix_mult[5],matrix_mult[9],matrix_mult[13]],
             [matrix_mult[2],matrix_mult[6],matrix_mult[10],matrix_mult[14]],
             [matrix_mult[3],matrix_mult[7],matrix_mult[11],matrix_mult[15]]
-        ])
+        ]
+        m = getMatrixInverse(mm)
         matrix_mult = [
             int(m[0][0]),
-            int(m[0][1]),
-            int(m[0][2]),
-            int(m[0][3]),
             int(m[1][0]),
-            int(m[1][1]),
-            int(m[1][2]),
-            int(m[1][3]),
             int(m[2][0]),
-            int(m[2][1]),
-            int(m[2][2]),
-            int(m[2][3]),
             int(m[3][0]),
+            int(m[0][1]),
+            int(m[1][1]),
+            int(m[2][1]),
             int(m[3][1]),
+            int(m[0][2]),
+            int(m[1][2]),
+            int(m[2][2]),
             int(m[3][2]),
+            int(m[0][3]),
+            int(m[1][3]),
+            int(m[2][3]),
             int(m[3][3])
         ]
-        #b[0] = (matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]) % 2
-        #b[1] = (matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]) % 2
-        #b[2] = (matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]) % 2
-        #b[3] = (matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]) % 2
+        p = bytearray(4)
+        p[0] = (matrix_mult[0]*b[0] ^ matrix_mult[4]*b[1] ^ matrix_mult[8]*b[2] ^ matrix_mult[12]*b[3]) % 2
+        p[1] = (matrix_mult[1]*b[0] ^ matrix_mult[5]*b[1] ^ matrix_mult[9]*b[2] ^ matrix_mult[13]*b[3]) % 2
+        p[2] = (matrix_mult[2]*b[0] ^ matrix_mult[6]*b[1] ^ matrix_mult[10]*b[2] ^ matrix_mult[14]*b[3]) % 2
+        p[3] = (matrix_mult[3]*b[0] ^ matrix_mult[7]*b[1] ^ matrix_mult[11]*b[2] ^ matrix_mult[15]*b[3]) % 2
 
-        b = b[3]*8 + b[2]*4 + b[1]*2 + b[0]*1
-        matrix[block] = b
+        p = p[3]*8 + p[2]*4 + p[1]*2 + p[0]*1
+        matrix[block] = p
 
 
 
@@ -262,7 +265,7 @@ def getMatrixDeternminant(m):
     determinant = 0
     for c in range(len(m)):
         determinant += ((-1)**c)*m[0][c]*getMatrixDeternminant(getMatrixMinor(m,0,c))
-    return determinant % 2
+    return determinant
 
 def getMatrixInverse(m):
     determinant = getMatrixDeternminant(m)
@@ -283,4 +286,5 @@ def getMatrixInverse(m):
     for r in range(len(cofactors)):
         for c in range(len(cofactors)):
             cofactors[r][c] = cofactors[r][c]/determinant
+            #cofactors[r][c] %= 2
     return cofactors

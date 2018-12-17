@@ -30,7 +30,7 @@ def test_permutacion_filas_inv():
     assert matrix == descifrado
 
 def test_sustitucion_afin():
-    matrix = bytearray([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+    matrix = bytearray([3,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
     clave = bytearray([8,4,2,1,8])
     cifrado = bytearray(matrix)
     sustitucion_afin(clave,cifrado,1)
