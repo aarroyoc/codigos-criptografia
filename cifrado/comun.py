@@ -228,18 +228,97 @@ def permutacion_columnas(clave,matrix):
     col4[2] = matrix[14]
     col4[3] = matrix[15]
     
-    col1 = poly_mult_modulo(col1,poly)
-    col2 = poly_mult_modulo(col2,poly)
-    col3 = poly_mult_modulo(col3,poly)
-    col4 = poly_mult_modulo(col4,poly)
-
-    new = bytearray()
-    new.extend(col1)
-    new.extend(col2)
-    new.extend(col3)
-    new.extend(col4)
-
+    mm = [
+        [poly[0],poly[3],poly[2],poly[1]],
+        [poly[1],poly[0],poly[3],poly[2]],
+        [poly[2],poly[1],poly[0],poly[3]],
+        [poly[3],poly[2],poly[1],poly[0]]
+    ]
+    new = bytearray(16)
+    new[0] = mm[0][0]*col1[0] + mm[0][1]*col1[1] + mm[0][2]*col1[2] + mm[0][3]*col1[3] % 16
+    new[1] = mm[1][0]*col1[0] + mm[1][1]*col1[1] + mm[1][2]*col1[2] + mm[1][3]*col1[3] % 16
+    new[2] = mm[2][0]*col1[0] + mm[2][1]*col1[1] + mm[2][2]*col1[2] + mm[2][3]*col1[3] % 16
+    new[3] = mm[3][0]*col1[0] + mm[3][1]*col1[1] + mm[3][2]*col1[2] + mm[3][3]*col1[3] % 16
+    new[4] = mm[0][0]*col2[0] + mm[0][1]*col2[1] + mm[0][2]*col2[2] + mm[0][3]*col2[3] % 16
+    new[5] = mm[1][0]*col2[0] + mm[1][1]*col2[1] + mm[1][2]*col2[2] + mm[1][3]*col2[3] % 16
+    new[6] = mm[2][0]*col2[0] + mm[2][1]*col2[1] + mm[2][2]*col2[2] + mm[2][3]*col2[3] % 16
+    new[7] = mm[3][0]*col2[0] + mm[3][1]*col2[1] + mm[3][2]*col2[2] + mm[3][3]*col2[3] % 16
+    new[8] = mm[0][0]*col3[0] + mm[0][1]*col3[1] + mm[0][2]*col3[2] + mm[0][3]*col3[3] % 16
+    new[9] = mm[1][0]*col3[0] + mm[1][1]*col3[1] + mm[1][2]*col3[2] + mm[1][3]*col3[3] % 16
+    new[10] = mm[2][0]*col3[0] + mm[2][1]*col3[1] + mm[2][2]*col3[2] + mm[2][3]*col3[3] % 16
+    new[11] = mm[3][0]*col3[0] + mm[3][1]*col3[1] + mm[3][2]*col3[2] + mm[3][3]*col3[3] % 16
+    new[12] = mm[0][0]*col4[0] + mm[0][1]*col4[1] + mm[0][2]*col4[2] + mm[0][3]*col4[3] % 16
+    new[13] = mm[1][0]*col4[0] + mm[1][1]*col4[1] + mm[1][2]*col4[2] + mm[1][3]*col4[3] % 16
+    new[14] = mm[2][0]*col4[0] + mm[2][1]*col4[1] + mm[2][2]*col4[2] + mm[2][3]*col4[3] % 16
+    new[15] = mm[3][0]*col4[0] + mm[3][1]*col4[1] + mm[3][2]*col4[2] + mm[3][3]*col4[3] % 16
+    
     return new
+
+def permutacion_columnas_inv(clave,matrix):
+    poly = bytearray(4)
+    poly[0] = 1
+    poly[1] = clave[10]
+    poly[2] = clave[11]
+    poly[3] = clave[12]
+
+    col1 = bytearray(4)
+    col1[0] = matrix[0]
+    col1[1] = matrix[1]
+    col1[2] = matrix[2]
+    col1[3] = matrix[3]
+
+    col2 = bytearray(4)
+    col2[0] = matrix[4]
+    col2[1] = matrix[5]
+    col2[2] = matrix[6]
+    col2[3] = matrix[7]
+
+    col3 = bytearray(4)
+    col3[0] = matrix[8]
+    col3[1] = matrix[9]
+    col3[2] = matrix[10]
+    col3[3] = matrix[11]
+
+    col4 = bytearray(4)
+    col4[0] = matrix[12]
+    col4[1] = matrix[13]
+    col4[2] = matrix[14]
+    col4[3] = matrix[15]
+
+    # Invertir polinomio
+    matrix = [
+        [poly[0],poly[3],poly[2],poly[1]],
+        [poly[1],poly[0],poly[3],poly[2]],
+        [poly[2],poly[1],poly[0],poly[3]],
+        [poly[3],poly[2],poly[1],poly[0]]
+    ]
+    mm = getMatrixInverse(matrix)
+    mm = [
+        list(map(int,mm[0])),
+        list(map(int,mm[1])),
+        list(map(int,mm[2])),
+        list(map(int,mm[3]))
+    ]
+
+    new = bytearray(16)
+    new[0] = mm[0][0]*col1[0] + mm[0][1]*col1[1] + mm[0][2]*col1[2] + mm[0][3]*col1[3] % 16
+    new[1] = mm[1][0]*col1[0] + mm[1][1]*col1[1] + mm[1][2]*col1[2] + mm[1][3]*col1[3] % 16
+    new[2] = mm[2][0]*col1[0] + mm[2][1]*col1[1] + mm[2][2]*col1[2] + mm[2][3]*col1[3] % 16
+    new[3] = mm[3][0]*col1[0] + mm[3][1]*col1[1] + mm[3][2]*col1[2] + mm[3][3]*col1[3] % 16
+    new[4] = mm[0][0]*col2[0] + mm[0][1]*col2[1] + mm[0][2]*col2[2] + mm[0][3]*col2[3] % 16
+    new[5] = mm[1][0]*col2[0] + mm[1][1]*col2[1] + mm[1][2]*col2[2] + mm[1][3]*col2[3] % 16
+    new[6] = mm[2][0]*col2[0] + mm[2][1]*col2[1] + mm[2][2]*col2[2] + mm[2][3]*col2[3] % 16
+    new[7] = mm[3][0]*col2[0] + mm[3][1]*col2[1] + mm[3][2]*col2[2] + mm[3][3]*col2[3] % 16
+    new[8] = mm[0][0]*col3[0] + mm[0][1]*col3[1] + mm[0][2]*col3[2] + mm[0][3]*col3[3] % 16
+    new[9] = mm[1][0]*col3[0] + mm[1][1]*col3[1] + mm[1][2]*col3[2] + mm[1][3]*col3[3] % 16
+    new[10] = mm[2][0]*col3[0] + mm[2][1]*col3[1] + mm[2][2]*col3[2] + mm[2][3]*col3[3] % 16
+    new[11] = mm[3][0]*col3[0] + mm[3][1]*col3[1] + mm[3][2]*col3[2] + mm[3][3]*col3[3] % 16
+    new[12] = mm[0][0]*col4[0] + mm[0][1]*col4[1] + mm[0][2]*col4[2] + mm[0][3]*col4[3] % 16
+    new[13] = mm[1][0]*col4[0] + mm[1][1]*col4[1] + mm[1][2]*col4[2] + mm[1][3]*col4[3] % 16
+    new[14] = mm[2][0]*col4[0] + mm[2][1]*col4[1] + mm[2][2]*col4[2] + mm[2][3]*col4[3] % 16
+    new[15] = mm[3][0]*col4[0] + mm[3][1]*col4[1] + mm[3][2]*col4[2] + mm[3][3]*col4[3] % 16
+    return new
+
 
 
 def suma_xor(clave,matrix):
@@ -247,6 +326,87 @@ def suma_xor(clave,matrix):
     Suma (XOR) de dos matrices
     '''
     return bytearray([pair[0] ^ pair[1] for pair in zip(clave,matrix)])
+
+def check_clave(clave):
+    i = 0
+    matrix_mult = bytearray(16)
+    matrix_mult[0] = clave[i] & 0b0001
+    matrix_mult[1] = (clave[i] & 0b0010) >> 1
+    matrix_mult[2] = (clave[i] & 0b0100) >> 2
+    matrix_mult[3] = (clave[i] & 0b1000) >> 3
+    matrix_mult[4] = clave[i+1] & 0b0001
+    matrix_mult[5] = (clave[i+1] & 0b0010) >> 1
+    matrix_mult[6] = (clave[i+1] & 0b0100) >> 2
+    matrix_mult[7] = (clave[i+1] & 0b1000) >> 3
+    matrix_mult[8] = clave[i+2] & 0b0001
+    matrix_mult[9] = (clave[i+2] & 0b0010) >> 1
+    matrix_mult[10] = (clave[i+2] & 0b0100) >> 2
+    matrix_mult[11] = (clave[i+2] & 0b1000) >> 3
+    matrix_mult[12] = clave[i+3] & 0b0001
+    matrix_mult[13] = (clave[i+3] & 0b0010) >> 1
+    matrix_mult[14] = (clave[i+3] & 0b0100) >> 2
+    matrix_mult[15] = (clave[i+3] & 0b1000) >> 3
+    mm = [
+        [matrix_mult[0],matrix_mult[4],matrix_mult[8],matrix_mult[12]],
+        [matrix_mult[1],matrix_mult[5],matrix_mult[9],matrix_mult[13]],
+        [matrix_mult[2],matrix_mult[6],matrix_mult[10],matrix_mult[14]],
+        [matrix_mult[3],matrix_mult[7],matrix_mult[11],matrix_mult[15]]
+    ]
+    if getMatrixDeternminant(mm) % 2 == 0:
+        return False
+    i = 5
+    matrix_mult = bytearray(16)
+    matrix_mult[0] = clave[i] & 0b0001
+    matrix_mult[1] = (clave[i] & 0b0010) >> 1
+    matrix_mult[2] = (clave[i] & 0b0100) >> 2
+    matrix_mult[3] = (clave[i] & 0b1000) >> 3
+    matrix_mult[4] = clave[i+1] & 0b0001
+    matrix_mult[5] = (clave[i+1] & 0b0010) >> 1
+    matrix_mult[6] = (clave[i+1] & 0b0100) >> 2
+    matrix_mult[7] = (clave[i+1] & 0b1000) >> 3
+    matrix_mult[8] = clave[i+2] & 0b0001
+    matrix_mult[9] = (clave[i+2] & 0b0010) >> 1
+    matrix_mult[10] = (clave[i+2] & 0b0100) >> 2
+    matrix_mult[11] = (clave[i+2] & 0b1000) >> 3
+    matrix_mult[12] = clave[i+3] & 0b0001
+    matrix_mult[13] = (clave[i+3] & 0b0010) >> 1
+    matrix_mult[14] = (clave[i+3] & 0b0100) >> 2
+    matrix_mult[15] = (clave[i+3] & 0b1000) >> 3
+    mm = [
+        [matrix_mult[0],matrix_mult[4],matrix_mult[8],matrix_mult[12]],
+        [matrix_mult[1],matrix_mult[5],matrix_mult[9],matrix_mult[13]],
+        [matrix_mult[2],matrix_mult[6],matrix_mult[10],matrix_mult[14]],
+        [matrix_mult[3],matrix_mult[7],matrix_mult[11],matrix_mult[15]]
+    ]
+    if getMatrixDeternminant(mm) % 2 == 0:
+        return False
+
+    poly = bytearray(4)
+    poly[0] = 1
+    poly[1] = clave[10]
+    poly[2] = clave[11]
+    poly[3] = clave[12]
+    mm = [
+        [poly[0],poly[3],poly[2],poly[1]],
+        [poly[1],poly[0],poly[3],poly[2]],
+        [poly[2],poly[1],poly[0],poly[3]],
+        [poly[3],poly[2],poly[1],poly[0]]
+    ]
+    if getMatrixDeternminant(mm) % 2 == 0:
+        return False
+    return True
+
+def ascii_to_hex(letter):
+    if '0' <= letter <= '9':
+        return ord(letter)-ord('0')
+    elif 'a' <= letter <= 'f':
+        return ord(letter)-ord('a')+10
+
+def read_clave(text):
+    if len(text) != 16:
+        raise Exception("Clave demasiado corta")
+    clave = [ascii_to_hex(c) for c in text]
+    return bytearray(clave)
 
 '''
 Operaciones con matrices

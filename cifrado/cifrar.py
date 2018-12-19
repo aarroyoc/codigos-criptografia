@@ -1,14 +1,13 @@
 from comun import *
 
 def cifrar_bloque(clave,matrix):
-    clave = bytearray([8,4,2,1,8,8,4,2,1,8,0,0,0,0,0,0])
     sustitucion_afin(clave,matrix,1)
     matrix = permutacion_filas(matrix)
-    #matrix = permutacion_columnas(clave,matrix)
+    matrix = permutacion_columnas(clave,matrix)
     matrix = suma_xor(clave,matrix)
     sustitucion_afin(clave,matrix,2)
     matrix = permutacion_filas(matrix)
-    #matrix = permutacion_columnas(clave,matrix)
+    matrix = permutacion_columnas(clave,matrix)
     return matrix
 
 
@@ -16,30 +15,16 @@ if __name__ == "__main__":
     clave_file = input("Fichero de la clave: ")
     input_file = input("Fichero a cifrar: ")
     output_file = input("Fichero de salida: ")
-    clave_bytes = open(clave_file,"rb").read()
+    clave_str = open(clave_file,"r").read()
     input_bytes = open(input_file,"rb").read()
-    clave = bytearray(16)
-    clave[0] = (clave_bytes[0] & 0b11110000) >> 4
-    clave[1] = clave_bytes[0] & 0b00001111
-    clave[2] = (clave_bytes[1] & 0b11110000) >> 4
-    clave[3] = clave_bytes[1] & 0b00001111
-    clave[4] = (clave_bytes[2] & 0b11110000) >> 4
-    clave[5] = clave_bytes[2] & 0b00001111
-    clave[6] = (clave_bytes[3] & 0b11110000) >> 4
-    clave[7] = clave_bytes[3] & 0b00001111
-    clave[8] = (clave_bytes[4] & 0b11110000) >> 4
-    clave[9] = clave_bytes[4] & 0b00001111
-    clave[10] = (clave_bytes[5] & 0b11110000) >> 4
-    clave[11] = clave_bytes[5] & 0b00001111
-    clave[12] = (clave_bytes[6] & 0b11110000) >> 4
-    clave[13] = clave_bytes[6] & 0b00001111
-    clave[14] = (clave_bytes[7] & 0b11110000) >> 4
-    clave[15] = clave_bytes[7] & 0b00001111
+    clave = read_clave(clave_str)
     # Cada matriz es de 8 bytes
     # 16 bloques
     # Bloques de 4 BITS
     if len(input_bytes) % 8 != 0:
         raise Error("El tamaño del texto no es válido")
+    if check_clave(clave) == False:
+        raise Error("Clave no válida")
     i = 0
     with open(output_file,"wb") as f:
         while i < len(input_bytes):
